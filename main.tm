@@ -3,18 +3,18 @@
 <style|ieeetran>
 
 <\body>
-  <doc-data|<doc-title|A Fast Optimizer with Momentum and Sign>>
+  <doc-data|<doc-title|A Memory Efficient Optimizer with Momentum and Sign>>
 
   <center|Peng-xu Jiang<\footnote>
     Email: shuiruge@whu.edu.cn
   </footnote>>
 
-  <abstract-data|<abstract|We propose a fast optimization algorithm for deep
-  learning that uses only the sign of momentum. This optimizer is as fast as
-  Adam, but occupies half of the memory that Adam does. We also give an
-  analysis of the effect of decay factor, which is the only hyper-parameter
-  in our algorithm except for the learning rate. We validate the analysis on
-  the fashion-MNIST dataset.>>
+  <abstract-data|<abstract|We propose a memory efficient optimization
+  algorithm for deep learning that uses only the sign of momentum. This
+  optimizer is as fast as Adam, but occupies half of the memory that Adam
+  does. We also give an analysis of the effect of decay factor, which is the
+  only hyper-parameter in our algorithm except for the learning rate. We
+  validate the analysis on the fashion-MNIST dataset.>>
 
   <section|Background>
 
@@ -186,7 +186,12 @@
     iteration>
   </equation>
 
-  \;
+  With moving average, the randomness is reduced; and the RMS
+  <math|<sqrt|s<rsub|t><rsup|\<alpha\>>>> can be seen as an estimation of the
+  <math|<around*|\||\<nabla\><wide|L|^><around*|(|\<theta\><rsub|t>|)>|\|>>,
+  especially when <math|\<eta\>> is small and <math|\<theta\><rsub|t>> is
+  slowly varying. Thus, the last term in (<reference|equation:RMS iteration>)
+  approximates the <math|\<eta\> \<nabla\>L<around*|(|\<theta\><rsub|t>|)>/<around*|\||\<nabla\><wide|L|^><around*|(|\<theta\><rsub|t>|)>|\|>>.
 
   Finally, by combining <verbatim|rmsprop> and momentum, the state-of-the-art
   optimization algorithm, named <verbatim|adam>, was proposed in
@@ -196,19 +201,30 @@
     <hlink|1412.6980|https://arxiv.org/abs/1412.6980>.
   </footnote> Explicitly, it first computes momentum by equation
   (<reference|equation:moving average>). Then, it computes the RMS by
-  equation (<reference|equation:RMS>). And finally, iterate the model
+  equation (<reference|equation:RMS>). And finally, iterates the model
   parameters by (here, we omit the bias-correcting for simplicity)
 
-  <\equation*>
+  <\equation>
     \<theta\><rsup|\<alpha\>><rsub|t+1>=\<theta\><rsup|\<alpha\>><rsub|t>-\<eta\>
-    <frac|g<rsub|t><rsup|\<alpha\>>|<sqrt|s<rsup|\<alpha\>><rsub|t>+\<epsilon\>>>.
-  </equation*>
+    <frac|g<rsub|t><rsup|\<alpha\>>|<sqrt|s<rsup|\<alpha\>><rsub|t>+\<epsilon\>>>.<label|equation:Adam
+    iteration>
+  </equation>
+
+  Again, by moving average, <math|g<rsub|t>> can be seen as an estimation of
+  <math|\<nabla\><wide|L|^><around*|(|\<theta\><rsub|t>|)>>. Thus, the last
+  term in (<reference|equation:Adam iteration>) approximates the
+  <math|\<nabla\><wide|L|^><around*|(|\<theta\><rsub|t>|)>/<around*|\||\<nabla\><wide|L|^><around*|(|\<theta\><rsub|t>|)>|\|>>,
+  which equals to <math|sign<around*|(|\<nabla\><wide|L|^><around*|(|\<theta\><rsub|t>|)>|)>>.
+  This motives us to consider using the <math|sign<around*|(|g<rsub|t>|)>>
+  directly, since <math|g<rsub|t>> has been an estimation of
+  <math|><math|\<nabla\><wide|L|^><around*|(|\<theta\><rsub|t>|)>> by moving
+  average.
 
   <section|Method>
 
   <subsection|Gradient Descent by the Sign of Momentum>
 
-  We propose that, in the gradient descent iteration
+  Thus, we propose that, in the gradient descent iteration
   (<reference|equation:gradient descent method>), we shall use the sign of
   momentum, instead of the sign of gradient like <verbatim|rprop>, or of the
   gradient rescaled by RMS like <verbatim|rmsprop>. That is, we use
@@ -219,11 +235,12 @@
     iteration>
   </equation>
 
-  This is a combination of momentum (the strategy to reduce the randomness in
-  the gradient caused by mini-batch) and only using the sign (the strategy
-  employed in <verbatim|rprop> to force synchronizing the gradients). By
-  moving average, the <math|g<rsub|t>> has been stabilized. And we use the
-  sign of <math|g<rsub|t>> for gradient descent iteration.
+  This is a <with|font-shape|italic|direct> combination of momentum (the
+  strategy to reduce the randomness in the gradient caused by mini-batch) and
+  only using the sign (the strategy employed in <verbatim|rprop> to force
+  synchronizing the gradients). In this way, there is no need to compute and
+  cache the RMS term <math|s<rsub|t>>. The memory occupation can be greatly
+  decreased (to be half) comparing with <verbatim|adam> algorithm.
 
   As a summary, we implement our method using <verbatim|Numpy>.
 
@@ -352,9 +369,11 @@
   We have proposed a new algorithm that optimizes deep neural networks. From
   the basic benchmark tests, we have found that our method is as fast as the
   state-of-the-art <verbatim|adam>, but occupies only half of the memory that
-  <verbatim|adam> does. Because of its efficiency in memory, as well as its
-  state-of-the-art level speed, it is a potential candidate for training
-  large models.
+  <verbatim|adam> does. The key point is that there is no need to compute and
+  cache the RMS, and the sign of momentum is all you need.
+
+  Because of its efficiency in memory, as well as its state-of-the-art level
+  speed, it is a potential candidate for training large models.
 
   <section|Acknowledgements>
 
@@ -384,8 +403,9 @@
     <associate|auto-7|<tuple|B|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
     <associate|auto-8|<tuple|III|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
     <associate|auto-9|<tuple|1|3|../../.TeXmacs/texts/scratch/no_name_4.tm>>
+    <associate|equation:Adam iteration|<tuple|7|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
     <associate|equation:RMS|<tuple|5|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|equation:RMS iteration|<tuple|7|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
+    <associate|equation:RMS iteration|<tuple|8|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
     <associate|equation:gradient descent method|<tuple|1|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
     <associate|equation:moving average|<tuple|3|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
     <associate|equation:moving average 2|<tuple|4|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
