@@ -101,7 +101,7 @@
 
   We initialize <math|g<rsub|t>> by zero vector, thus
   <math|g<rsub|0><rsup|\<alpha\>>=0>. The <math|\<gamma\>>, called decay
-  factor , determines how much old information from <math|g<rsub|t-1>> is to
+  factor, determines how much old information from <math|g<rsub|t-1>> is to
   be \Pforgotten\Q, and how much new information of from
   <math|\<nabla\>L<around*|(|\<theta\><rsub|t>|)>> is to be \Pmemorized\Q.
   The <math|g<rsub|t>> can be seen as a weighted average of
@@ -171,7 +171,7 @@
 
   <\equation>
     s<rsub|t><rsup|\<alpha\>>=\<beta\> s<rsub|t-1><rsup|\<alpha\>>+<around*|(|1-\<beta\>|)>
-    <around*|(|\<nabla\><rsup|\<alpha\>>L<around*|(|\<theta\>|)>|)><rsup|2>,<label|equation:RMS>
+    <around*|(|\<nabla\><rsup|\<alpha\>>L<around*|(|\<theta\><rsub|t>|)>|)><rsup|2>,<label|equation:RMS>
   </equation>
 
   where <math|\<beta\>\<in\><around*|(|0,1|)>> and <math|s> is initialized by
@@ -202,7 +202,7 @@
   </footnote> Explicitly, it first computes momentum by equation
   (<reference|equation:moving average>). Then, it computes the RMS by
   equation (<reference|equation:RMS>). And finally, iterates the model
-  parameters by (here, we omit the bias-correcting for simplicity)
+  parameters by (we omit the bias-correcting for simplicity)
 
   <\equation>
     \<theta\><rsup|\<alpha\>><rsub|t+1>=\<theta\><rsup|\<alpha\>><rsub|t>-\<eta\>
@@ -397,43 +397,43 @@
 
 <\references>
   <\collection>
-    <associate|auto-1|<tuple|I|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|auto-10|<tuple|2|3|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|auto-11|<tuple|3|3|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|auto-12|<tuple|IV|3|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|auto-13|<tuple|V|3|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|auto-2|<tuple|A|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|auto-3|<tuple|B|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|auto-4|<tuple|C|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|auto-5|<tuple|II|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|auto-6|<tuple|A|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|auto-7|<tuple|B|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|auto-8|<tuple|III|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|auto-9|<tuple|1|3|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|equation:Adam iteration|<tuple|7|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|equation:RMS|<tuple|5|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|equation:RMS iteration|<tuple|8|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|equation:gradient descent method|<tuple|1|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|equation:moving average|<tuple|3|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|equation:moving average 2|<tuple|4|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|equation:stochastic gradient|<tuple|2|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|figure: benchmark test on cnn|<tuple|2|3|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|figure: benchmark test on ffd|<tuple|1|3|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|figure: decay factor|<tuple|3|3|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnote-1|<tuple|1|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnote-2|<tuple|2|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnote-3|<tuple|3|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnote-4|<tuple|4|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnote-5|<tuple|5|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnote-6|<tuple|6|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnote-7|<tuple|7|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnr-1|<tuple|1|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnr-2|<tuple|2|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnr-3|<tuple|3|1|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnr-4|<tuple|4|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnr-5|<tuple|5|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnr-6|<tuple|6|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
-    <associate|footnr-7|<tuple|7|2|../../.TeXmacs/texts/scratch/no_name_4.tm>>
+    <associate|auto-1|<tuple|I|1>>
+    <associate|auto-10|<tuple|2|3>>
+    <associate|auto-11|<tuple|3|3>>
+    <associate|auto-12|<tuple|IV|3>>
+    <associate|auto-13|<tuple|V|3>>
+    <associate|auto-2|<tuple|A|1>>
+    <associate|auto-3|<tuple|B|1>>
+    <associate|auto-4|<tuple|C|1>>
+    <associate|auto-5|<tuple|II|2>>
+    <associate|auto-6|<tuple|A|2>>
+    <associate|auto-7|<tuple|B|2>>
+    <associate|auto-8|<tuple|III|2>>
+    <associate|auto-9|<tuple|1|3>>
+    <associate|equation:Adam iteration|<tuple|7|2>>
+    <associate|equation:RMS|<tuple|5|2>>
+    <associate|equation:RMS iteration|<tuple|8|2>>
+    <associate|equation:gradient descent method|<tuple|1|1>>
+    <associate|equation:moving average|<tuple|3|1>>
+    <associate|equation:moving average 2|<tuple|4|1>>
+    <associate|equation:stochastic gradient|<tuple|2|1>>
+    <associate|figure: benchmark test on cnn|<tuple|2|3>>
+    <associate|figure: benchmark test on ffd|<tuple|1|3>>
+    <associate|figure: decay factor|<tuple|3|3>>
+    <associate|footnote-1|<tuple|1|1>>
+    <associate|footnote-2|<tuple|2|1>>
+    <associate|footnote-3|<tuple|3|1>>
+    <associate|footnote-4|<tuple|4|2>>
+    <associate|footnote-5|<tuple|5|2>>
+    <associate|footnote-6|<tuple|6|2>>
+    <associate|footnote-7|<tuple|7|2>>
+    <associate|footnr-1|<tuple|1|1>>
+    <associate|footnr-2|<tuple|2|1>>
+    <associate|footnr-3|<tuple|3|1>>
+    <associate|footnr-4|<tuple|4|2>>
+    <associate|footnr-5|<tuple|5|2>>
+    <associate|footnr-6|<tuple|6|2>>
+    <associate|footnr-7|<tuple|7|2>>
   </collection>
 </references>
 
@@ -451,8 +451,8 @@
       and the default decay factor is <with|font-family|<quote|tt>|language|<quote|verbatim>|0.95>.
       For a better visualization, we smooth all the loss curves by moving
       average with decay factor <with|mode|<quote|math>|0.95>. It can be seen
-      that our method is as fast as <with|font-family|<quote|tt>|language|<quote|verbatim>|adam>,
-      and out-performs the rest.>|<pageref|auto-9>>
+      that our method is as fast as <with|font-family|<quote|tt>|language|<quote|verbatim>|adam>
+      (two curves overlap), and out-performs the rest.>|<pageref|auto-9>>
 
       <tuple|normal|<\surround|<hidden-binding|<tuple>|2>|>
         Comparing with other optimizers by training a convolutional network
@@ -468,20 +468,26 @@
         finally <with|font-family|<quote|tt>|language|<quote|verbatim>|Dense(10)>
         as the output layer. Again, for hyper-parameters, we use the default
         values of each optimizer. And again, it can be seen that our method
-        is as fast as <with|font-family|<quote|tt>|language|<quote|verbatim>|adam>,
-        and out-performs the rest.
+        is as fast as <with|font-family|<quote|tt>|language|<quote|verbatim>|adam>
+        (the two curves overlap), and out-performs the rest.
       </surround>|<pageref|auto-10>>
 
       <tuple|normal|<surround|<hidden-binding|<tuple>|3>||We demonstrate the
       effects of decay factors <with|mode|<quote|math>|0.001>,
       <with|mode|<quote|math>|0.5>, and <with|mode|<quote|math>|0.999>. The
+      vertical axis represents for <with|mode|<quote|math>|L<around*|(|\<theta\><rsub|t>|)>>,
+      and the horizontal axis for the <with|mode|<quote|math>|t>. The
       optimization is made on a feed-forward network with the same
       architecture as in figure <reference|figure: benchmark test on ffd>. We
       keep the learning rate default. It can be seen that a too small or too
       large decay rate (recall that decay rate is in
       <with|mode|<quote|math>|<around*|(|0,1|)>>) will slow down the
       optimization. Here, the best is the moderate (i.e.
-      <with|mode|<quote|math>|0.5>, the yellow line).>|<pageref|auto-11>>
+      <with|mode|<quote|math>|0.5>, the yellow line). Notice the green curve
+      (decay factor <with|mode|<quote|math>|0.999>) which jumps up in the
+      period <with|mode|<quote|math>|t\<in\><around*|(|0,1000|)>>. This is
+      consistent with our analysis that a large decay factor may cause an
+      ascent of loss function.>|<pageref|auto-11>>
     </associate>
     <\associate|toc>
       <vspace*|1fn><with|font-series|<quote|bold>|math-font-series|<quote|bold>|I.<space|2spc>Background>
