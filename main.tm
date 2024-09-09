@@ -245,7 +245,7 @@
   As a summary, we implement our method using <verbatim|Numpy>.
 
   <\small>
-    <\python-code>
+    <\code>
       def mas(loss_gradient,
 
       \ \ \ \ \ \ \ \ initial_theta,
@@ -283,7 +283,7 @@
       \ \ \ \ \ \ \ \ theta = theta - learning_rate * np.sign(g)
 
       \ \ \ \ return theta
-    </python-code>
+    </code>
   </small>
 
   <subsection|Effect of Decay Factor>

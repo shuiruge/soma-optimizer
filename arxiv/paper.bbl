@@ -1,0 +1,25 @@
+\begin{thebibliography}{1}
+
+\bibitem{saddle}
+Yann Dauphin, Razvan Pascanu, Caglar Gulcehre, Kyunghyun Cho, Surya Ganguli,
+  and Yoshua Bengio.
+\newblock Identifying and attacking the saddle point problem in
+  high-dimensional non-convex optimization, 2014.
+
+\bibitem{adam}
+Diederik~P. Kingma and Jimmy Ba.
+\newblock Adam: A method for stochastic optimization, 2017.
+
+\bibitem{rprop}
+M.~Riedmiller and H.~Braun.
+\newblock A direct adaptive method for faster backpropagation learning: the
+  rprop algorithm.
+\newblock In {\em IEEE International Conference on Neural Networks}, pages
+  586--591 vol.1, 1993.
+
+\bibitem{backprop}
+David~E. Rumelhart, Geoffrey~E. Hinton, and Ronald~J. Williams.
+\newblock Learning representations by back-propagating errors.
+\newblock {\em Nature}, 323:533--536, 1986.
+
+\end{thebibliography}
