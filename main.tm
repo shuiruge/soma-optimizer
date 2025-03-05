@@ -15,7 +15,14 @@
   optimizer is as fast as Adam, but occupies half of the memory that Adam
   does. We also give an analysis of the effect of decay factor, which is the
   only hyper-parameter in our algorithm except for the learning rate. We
-  validate the analysis on the fashion-MNIST dataset.>>
+  validate the analysis on the fashion-MNIST dataset.<\footnote>
+    After finishing this research, we found that others (arxiv:
+    <hlink|1802.04434|https://arxiv.org/abs/1802.04434>) had proposed the
+    same optimizer with the same motivations. But it seems that only a few
+    have followed their research. A not that impossible reason traces to its
+    name \Psignum\Q, not as well-known as \PAdam\Q. So, our contribution
+    seems to be proposing a better name: \Psoma\Q.
+  </footnote>>>
 
   <section|Background>
 
@@ -425,19 +432,25 @@
     <associate|figure: benchmark test on ffd|<tuple|1|3>>
     <associate|figure: decay factor|<tuple|3|3>>
     <associate|footnote-1|<tuple|1|1>>
+    <associate|footnote-10|<tuple|10|?>>
     <associate|footnote-2|<tuple|2|1>>
     <associate|footnote-3|<tuple|3|1>>
     <associate|footnote-4|<tuple|4|2>>
     <associate|footnote-5|<tuple|5|2>>
     <associate|footnote-6|<tuple|6|2>>
     <associate|footnote-7|<tuple|7|2>>
+    <associate|footnote-8|<tuple|8|?>>
+    <associate|footnote-9|<tuple|9|?>>
     <associate|footnr-1|<tuple|1|1>>
+    <associate|footnr-10|<tuple|10|?>>
     <associate|footnr-2|<tuple|2|1>>
     <associate|footnr-3|<tuple|3|1>>
     <associate|footnr-4|<tuple|4|2>>
     <associate|footnr-5|<tuple|5|2>>
     <associate|footnr-6|<tuple|6|2>>
     <associate|footnr-7|<tuple|7|2>>
+    <associate|footnr-8|<tuple|8|?>>
+    <associate|footnr-9|<tuple|9|?>>
   </collection>
 </references>
 
@@ -446,13 +459,14 @@
     <\associate|figure>
       <tuple|normal|<surround|<hidden-binding|<tuple>|1>||Comparing with
       other optimizers by training a feed-forward network on the training set
-      of fashion-MNIST. Our method is denoted by \PMas\Q. The feed-forward
-      network contains two hidden layers, with <with|mode|<quote|math>|128>
-      and <with|mode|<quote|math>|64> neurons respectively, and with ReLU
-      activation. The output layer is linear. For hyper-parameters, we use
-      the default values of each optimizer. The default learning rate of
-      \PMas\Q is <with|font-family|<quote|tt>|language|<quote|verbatim>|2E-4>;
-      and the default decay factor is <with|font-family|<quote|tt>|language|<quote|verbatim>|0.95>.
+      of fashion-MNIST. Our method is denoted by \PMas\Q (for historical
+      reasons). The feed-forward network contains two hidden layers, with
+      <with|mode|<quote|math>|128> and <with|mode|<quote|math>|64> neurons
+      respectively, and with ReLU activation. The output layer is linear. For
+      hyper-parameters, we use the default values of each optimizer. The
+      default learning rate of our optimizer is
+      <with|font-family|<quote|tt>|language|<quote|verbatim>|2E-4>; and the
+      default decay factor is <with|font-family|<quote|tt>|language|<quote|verbatim>|0.95>.
       For a better visualization, we smooth all the loss curves by moving
       average with decay factor <with|mode|<quote|math>|0.95>. It can be seen
       that our method is as fast as <with|font-family|<quote|tt>|language|<quote|verbatim>|adam>
