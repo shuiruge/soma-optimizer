@@ -136,14 +136,13 @@
 
   <subsection|Gradient Descent by the Sign of Gradient>
 
-  While training deep neural networks. it is often found that
+  While training deep neural networks, it is often found that
   <math|\<nabla\><rsup|\<alpha\>>L<around*|(|\<theta\><rsub|t>|)>> varies
-  greatly from component to component, for
-  <math|\<theta\><rsub|t>=\<theta\><rsub|0>,\<ldots\>,\<theta\><rsub|\<star\>>>.
-  This indicates that some components are too inert to change (because their
-  ratios are very small) while some are extremely restless (because their
-  ratios are very large). This non-synchronization slows down the training
-  process.
+  greatly from component to component. This indicates that some components
+  are too inert to change (because their gradients have very small absolute
+  values) while some are extremely restless (because their gradients have
+  very large absolute values). This non-synchronization slows down the
+  training process.
 
   In 1992, Martin Riedmiller and Heinrich Braun proposed an algorithm called
   <verbatim|rprop> (short for resilient back-propagation) that can release
