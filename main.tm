@@ -15,14 +15,7 @@
   optimizer is as fast as Adam, but occupies half of the memory that Adam
   does. We also give an analysis of the effect of decay factor, which is the
   only hyper-parameter in our algorithm except for the learning rate. We
-  validate the analysis on the fashion-MNIST dataset.<\footnote>
-    After finishing this research, we found that others (arxiv:
-    <hlink|1802.04434|https://arxiv.org/abs/1802.04434>) had proposed the
-    same optimizer with the same motivations. But it seems that only a few
-    have followed their research. A not that impossible reason traces to its
-    name \Psignum\Q, not as well-known as \PAdam\Q. So, our contribution
-    seems to be proposing a better name: \Psoma\Q.
-  </footnote>>>
+  validate the analysis on the fashion-MNIST dataset.>>
 
   <section|Background>
 
@@ -156,7 +149,7 @@
   <verbatim|rprop> (short for resilient back-propagation) that can release
   this non-synchronization.<\footnote>
     <with|font-shape|italic|Rprop - A Fast Adaptive Learning Algorithm>, by
-    Martin Riedmiller und Heinrich Braun, 1992. DOI:
+    Martin Riedmiller and Heinrich Braun, 1992. DOI:
     <hlink|10.1109/ICNN.1993.298623|https://doi.org/10.1109/ICNN.1993.298623>.
   </footnote> It uses the sign <math|sign<around*|(|\<nabla\>L<around*|(|\<theta\><rsub|t>|)>|)>>
   (rather than the gradient <math|\<nabla\>L<around*|(|\<theta\><rsub|t>|)>>
@@ -196,10 +189,10 @@
 
   With moving average, the randomness is reduced; and the RMS
   <math|<sqrt|s<rsub|t><rsup|\<alpha\>>>> can be seen as an estimation of the
-  <math|<around*|\||\<nabla\><wide|L|^><around*|(|\<theta\><rsub|t>|)>|\|>>,
+  <math|<around*|\||\<nabla\><rsup|\<alpha\>><wide|L|^><around*|(|\<theta\><rsub|t>|)>|\|>>,
   especially when <math|\<eta\>> is small and <math|\<theta\><rsub|t>> is
   slowly varying. Thus, the last term in (<reference|equation:RMS iteration>)
-  approximates the <math|\<eta\> \<nabla\>L<around*|(|\<theta\><rsub|t>|)>/<around*|\||\<nabla\><wide|L|^><around*|(|\<theta\><rsub|t>|)>|\|>>.
+  approximates the <math|\<eta\> \<nabla\><rsup|\<alpha\>>L<around*|(|\<theta\><rsub|t>|)>/<around*|\||\<nabla\><rsup|\<alpha\>><wide|L|^><around*|(|\<theta\><rsub|t>|)>|\|>>.
 
   Finally, by combining <verbatim|rmsprop> and momentum, the state-of-the-art
   optimization algorithm, named <verbatim|adam>, was proposed in
@@ -254,7 +247,7 @@
 
   <\small>
     <\code>
-      def soma_optimizer(
+      def optimize(
 
       \ \ \ \ \ \ \ \ loss_gradient,
 
@@ -265,8 +258,6 @@
       \ \ \ \ \ \ \ \ learning_rate=2e-4,
 
       \ \ \ \ \ \ \ \ decay_factor=0.95):
-
-      \ \ \ \ """Optimizer using the Sign of Momentum."""
 
       \ \ \ \ # Initialization:
 
@@ -384,7 +375,8 @@
 
   <section|Conclusion and Discussion>
 
-  We have proposed a new algorithm that optimizes deep neural networks. From
+  This research began with a historical review of the development of
+  optimizers. As a result, we proposed a simple but efficient optimizer. From
   the basic benchmark tests, we have found that our method is as fast as the
   state-of-the-art <verbatim|adam>, but occupies only half of the memory that
   <verbatim|adam> does. The key point is that there is no need to compute and
@@ -392,6 +384,16 @@
 
   Because of its efficiency in memory, as well as its state-of-the-art level
   speed, it is a potential candidate for training large models.
+
+  After finishing this research, we found that others had proposed the same
+  optimizer.<\footnote>
+    <em|signSGD: Compressed Optimisation for Non-Convex Problems> by Jeremy
+    Bernstein and others, 2018. Arxiv: <hlink|1802.04434|https://arxiv.org/abs/1802.04434>.
+  </footnote> It seems, however, only a few have followed their research. A
+  not that impossible reason traces to its name <verbatim|signum>, not as
+  well-known as <verbatim|adam>. So, our contribution seems to be proposing a
+  better name: <verbatim|soma> (<strong|s>ign <strong|o>f <strong|m>oving
+  <strong|a>verage).
 
   <section|Acknowledgements>
 
@@ -432,25 +434,21 @@
     <associate|figure: benchmark test on ffd|<tuple|1|3>>
     <associate|figure: decay factor|<tuple|3|3>>
     <associate|footnote-1|<tuple|1|1>>
-    <associate|footnote-10|<tuple|10|?>>
     <associate|footnote-2|<tuple|2|1>>
     <associate|footnote-3|<tuple|3|1>>
     <associate|footnote-4|<tuple|4|2>>
     <associate|footnote-5|<tuple|5|2>>
     <associate|footnote-6|<tuple|6|2>>
     <associate|footnote-7|<tuple|7|2>>
-    <associate|footnote-8|<tuple|8|?>>
-    <associate|footnote-9|<tuple|9|?>>
+    <associate|footnote-8|<tuple|8|3>>
     <associate|footnr-1|<tuple|1|1>>
-    <associate|footnr-10|<tuple|10|?>>
     <associate|footnr-2|<tuple|2|1>>
     <associate|footnr-3|<tuple|3|1>>
     <associate|footnr-4|<tuple|4|2>>
     <associate|footnr-5|<tuple|5|2>>
     <associate|footnr-6|<tuple|6|2>>
     <associate|footnr-7|<tuple|7|2>>
-    <associate|footnr-8|<tuple|8|?>>
-    <associate|footnr-9|<tuple|9|?>>
+    <associate|footnr-8|<tuple|8|3>>
   </collection>
 </references>
 
