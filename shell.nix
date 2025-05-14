@@ -14,7 +14,8 @@ in pkgs.mkShell rec {
     pythonPackages.jax
     pythonPackages.flax
     pythonPackages.matplotlib
-    # torch and torchvision for loading datasets.
+    # for loading datasets.
+    pythonPackages.scikit-learn
     pythonPackages.torch
     pythonPackages.torchvision
   ];

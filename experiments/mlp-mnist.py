@@ -65,9 +65,9 @@ def init_network_params(sizes, key):
     params += random_layer_params(m, n, k)
   return params
 
-layer_sizes = [image_size*image_size, 128, 10]
+layer_sizes = [image_size*image_size, 20, 10]
 step_size = 0.01
-num_epochs = 2
+num_epochs = 5
 params = init_network_params(layer_sizes, random.key(0))
 
 from jax.scipy.special import logsumexp
@@ -106,43 +106,9 @@ def update(params, x, y):
   return [p - step_size * g for (p, g) in zip(params, grads)]
 
 
-# -------- Optimization --------- #
-
-import time
-
-for epoch in range(num_epochs):
-  start_time = time.time()
-  for x, y in training_generator:
-    y = one_hot(y, n_targets)
-    params = update(params, x, y)
-  epoch_time = time.time() - start_time
-
-  train_acc = accuracy(params, train_images, train_labels)
-  test_acc = accuracy(params, test_images, test_labels)
-  print("Epoch {} in {:0.2f} sec".format(epoch, epoch_time))
-  print("Training set accuracy {}".format(train_acc))
-  print("Test set accuracy {}".format(test_acc))
-
-
-# -------- Visualization --------- #
+# -------- Second-Order Correction --------- #
 
 import jax
-import matplotlib.pyplot as plt
-
-def normalize(vector, eps=0.):
-    return vector / (np.sqrt(np.sum(np.square(vector))) + eps)
-
-inputs, targets = next(iter(training_generator))
-_, grads = jax.value_and_grad(loss)(params, inputs, one_hot(targets, n_targets))
-for grad in grads:
-    grad = np.reshape(grad, [-1])
-    normalized_grad = normalize(grad)
-    print(f'#elements = {normalized_grad.shape[0]}, ',
-          f'max = {np.max(normalized_grad)}, ',
-          f'min = {np.min(normalized_grad)}')
-    plt.hist(normalized_grad, bins=50, density=True)
-    plt.show()
-
 
 def get_param_shapes_and_boundaries(params):
   shapes = []
@@ -191,18 +157,71 @@ def get_mlp_hessian(params, inputs, targets):
   h = hessian(f)
   return h(concat_params(params))
 
-g = get_mlp_grad(params, inputs, one_hot(targets, n_targets))
-normalized_g = normalize(g)
 
-h = get_mlp_hessian(params, inputs, one_hot(targets, n_targets))
-h.shape
+# -------- Visualization --------- #
 
-h_inv = jnp.linalg.inv(h + 1e-8 * jnp.eye(h.shape[0]))
-g2 = jnp.dot(h_inv, g)
-normalized_g2 = normalize(g2)
-normalized_g2
-jnp.dot(normalized_g2, normalized_g)
+import matplotlib.pyplot as plt
 
-gsign = jnp.sign(g)
-normalized_gsign = normalize(gsign)
-jnp.dot(normalized_g2, normalized_gsign)
+def normalize(vector, eps=0.):
+    return vector / (np.sqrt(np.sum(np.square(vector))) + eps)
+
+step = 0
+L1_lst, L2_lst = [], []
+for epoch in range(num_epochs):
+  for x, y in training_generator:
+    y = one_hot(y, n_targets)
+    params = update(params, x, y)
+
+    step += 1
+    if step % 100 == 0:
+      print(f'step = {step}')
+      #eval_inputs = x
+      #eval_targets = one_hot(y, n_targets)
+      eval_inputs = train_images[:5000, :]
+      eval_targets = one_hot(train_labels[:5000], n_targets)
+      g = get_mlp_grad(params, eval_inputs, eval_targets)
+      normalized_g = normalize(g)
+      gsign = jnp.sign(g)
+      normalized_gsign = normalize(gsign)
+      # print(f'(H_inv @ g) @ sign(g) = {jnp.dot(normalized_g2, normalized_gsign)}')
+      print(f'g @ sign(g) = {jnp.dot(normalized_g, normalized_gsign)}')
+
+      H = get_mlp_hessian(params, eval_inputs, eval_targets)
+
+      dx = step_size * g
+      L1 = jnp.dot(g, dx)
+      L2 = 0.5 * jnp.dot(dx, H @ dx)
+      print(f'L1 = {L1}, L2 = {L2}')
+      L1_lst.append(L1)
+      L2_lst.append(L2)
+
+  train_acc = accuracy(params, train_images, train_labels)
+  test_acc = accuracy(params, test_images, test_labels)
+  print("Training set accuracy {}".format(train_acc))
+  print("Test set accuracy {}".format(test_acc))
+
+plt.clf()
+plt.plot(L1_lst, label='L1')
+plt.plot(L2_lst, label='L2')
+plt.legend()
+plt.show()
+
+plt.clf()
+plt.plot([a/b for a, b in zip(L1_lst, L2_lst)], label='L1/L2')
+plt.legend()
+plt.show()
+
+
+# eps = 1e-12
+# H_inv = jnp.linalg.inv(H + eps * jnp.eye(H.shape[0]))
+# jnp.isnan(H_inv).sum()  # => 0, indicating that H_inv is well-defined.
+# g2 = jnp.dot(H_inv, g)
+# normalized_g2 = normalize(g2)
+# print(f'(H_inv @ g) @ g = {jnp.dot(normalized_g2, normalized_g)}')
+
+
+# jnp.linalg.eigvals(H)
+
+# jnp.linalg.det(H)
+# jnp.linalg.det(H + 1e-5 * jnp.eye(H.shape[0]))
+# jnp.linalg.det(1e-1 * jnp.eye(H.shape[0]))
