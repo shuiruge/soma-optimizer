@@ -52,7 +52,7 @@ from jax import random
 # for a dense neural network layer
 def random_layer_params(m, n, key, scale=1e-2):
   w_key, b_key = random.split(key)
-  return scale * random.normal(w_key, (n, m)), scale * random.normal(b_key, (n,))
+  return scale * random.normal(w_key, (n, m)), 0. * random.normal(b_key, (n,))
 
 # Initialize all layers for a fully-connected neural network with sizes "sizes"
 def init_network_params(sizes, key):
@@ -63,7 +63,6 @@ def init_network_params(sizes, key):
   return params
 
 layer_sizes = [28*28, 512, 10]
-step_size = 0.01
 num_epochs = 8
 params = init_network_params(layer_sizes, random.key(0))
 
@@ -97,11 +96,6 @@ def loss(params, images, targets):
   preds = batched_predict(params, images)
   return -jnp.mean(preds * targets)
 
-@jit
-def update(params, x, y):
-  grads = grad(loss)(params, x, y)
-  return [p - step_size * g for (p, g) in zip(params, grads)]
-
 
 # -------- Higher-Order Correction --------- #
 
@@ -117,18 +111,31 @@ def loss_diffs(params, inputs, targets, step_size):
 
 # -------- Visualization --------- #
 
+import optax
 import matplotlib.pyplot as plt
+from soma_jax import soma
+
+# solver = optax.adam(learning_rate=1e-3)
+# solver = optax.sgd(learning_rate=1e-3)
+solver = soma(learning_rate=2e-4)  # test ours.
+
+@jit
+def update(params, x, y, opt_state):
+  grads = grad(loss)(params, x, y)
+  updates, opt_state = solver.update(grads, opt_state, params)
+  return optax.apply_updates(params, updates), opt_state
 
 step = 0
 steps, dL1_lst, dL_lst = [], [], []
+opt_state = solver.init(params)
 for epoch in range(num_epochs):
   for x, y in training_generator:
-    params = update(params, x, one_hot(y, n_targets))
+    params, opt_state = update(params, x, one_hot(y, n_targets), opt_state)
     step += 1
     if step % 100 == 0:
       eval_inputs = train_images[:5000, :]
       eval_targets = one_hot(train_labels[:5000], n_targets)
-      dL1, dL = loss_diffs(params, eval_inputs, eval_targets, step_size)
+      dL1, dL = loss_diffs(params, eval_inputs, eval_targets, 1e-3)
       steps.append(step)
       dL1_lst.append(dL1)
       dL_lst.append(dL)
