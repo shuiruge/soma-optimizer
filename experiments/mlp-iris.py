@@ -1,6 +1,3 @@
-# Following: https://docs.jax.dev/en/latest/notebooks/Neural_Network_and_Data_Loading.html
-
-
 # -------- Dataset --------- #
 
 from sklearn.datasets import load_iris
@@ -88,91 +85,34 @@ def one_hot(x, k, dtype=jnp.float32):
   return jnp.array(x[:, None] == jnp.arange(k), dtype)
 
 
-# -------- Second-Order Correction --------- #
+# -------- Higher-Order Correction --------- #
 
 import jax
 
-def get_param_shapes_and_boundaries(params):
-  shapes = []
-  boundaries = []
-  offset = 0
-  for p in params:
-    offset += jnp.reshape(p, [-1]).shape[0]
-    boundaries.append(offset)
-    shapes.append(p.shape)
-  return shapes, boundaries
-
-def concat_params(params):
-  return jnp.concat([jnp.reshape(p, [-1]) for p in params])
-
-def split_params(concated_params, shapes, boundaries):
-  params = []
-  i = 0
-  for shape, offset in zip(shapes, boundaries):
-    #print(i, offset, shape)
-    #print(concated_params[i:offset].shape)
-    p = jnp.reshape(concated_params[i:offset], shape)
-    i = offset
-    params.append(p)
-  return params
-
-def get_mlp_grad(params, inputs, targets):
-  shapes, boundaries = get_param_shapes_and_boundaries(params)
-
-  def f(concated_params):
-    params = split_params(concated_params, shapes, boundaries)
-    return loss(params, inputs, targets)
-
-  g = jax.grad(f)
-  return g(concat_params(params))
-
-def hessian(f):
-  return jax.jacrev(jax.grad(f))
-
-def get_mlp_hessian(params, inputs, targets):
-  shapes, boundaries = get_param_shapes_and_boundaries(params)
-
-  def f(concated_params):
-    params = split_params(concated_params, shapes, boundaries)
-    return loss(params, inputs, targets)
-
-  h = hessian(f)
-  return h(concat_params(params))
+def loss_diffs(params, inputs, targets, step_size):
+  grads = jax.grad(loss)(params, inputs, targets)
+  new_params = [p - step_size * g for p, g in zip(params, grads)]
+  first_order = -sum([step_size * jnp.sum(jnp.square(g)) for g in grads])
+  total = loss(new_params, inputs, targets) - loss(params, inputs, targets)
+  return first_order, total
 
 
 # -------- Visualization --------- #
 
 import matplotlib.pyplot as plt
 
-def normalize(vector, eps=0.):
-    return vector / (jnp.sqrt(jnp.sum(jnp.square(vector))) + eps)
-
-num_epochs = 5000
 step = 0
-L1_lst, L2_lst = [], []
-for epoch in range(num_epochs):
-  x = X_train
-  y = one_hot(y_train, n_targets)
-  params = update(params, x, y)
-
+steps, dL1_lst, dL_lst = [], [], []
+for epoch in range(10000):
+  params = update(params, X_train, one_hot(y_train, n_targets))
   step += 1
-  if step % 200 == 0:
-    print(f'step = {step}')
-    g = get_mlp_grad(params, x, y)
-    normalized_g = normalize(g)
-    gsign = jnp.sign(g)
-    normalized_gsign = normalize(gsign)
-    # print(f'(H_inv @ g) @ sign(g) = {jnp.dot(normalized_g2, normalized_gsign)}')
-    print(f'g @ sign(g) = {jnp.dot(normalized_g, normalized_gsign)}')
-
-    H = get_mlp_hessian(params, x, y)
-
-    dx = step_size * g
-    L1 = jnp.dot(g, dx)
-    L2 = 0.5 * jnp.dot(dx, H @ dx)
-    print(f'L1 = {L1}, L2 = {L2}')
-    L1_lst.append(L1)
-    L2_lst.append(L2)
+  if step % 100 == 0:
+    eval_inputs = X_train
+    eval_targets = one_hot(y_train, n_targets)
+    dL1, dL = loss_diffs(params, eval_inputs, eval_targets, step_size)
+    steps.append(step)
+    dL1_lst.append(dL1)
+    dL_lst.append(dL)
 
     train_acc = accuracy(params, X_train, one_hot(y_train, n_targets))
     test_acc = accuracy(params, X_test, one_hot(y_test, n_targets))
@@ -180,12 +120,12 @@ for epoch in range(num_epochs):
     print("Test set accuracy {}".format(test_acc))
 
 plt.clf()
-plt.plot(L1_lst, label='L1')
-plt.plot(L2_lst, label='L2')
+plt.plot(steps, dL1_lst, label='dL1')
+plt.plot(steps, dL_lst, label='dL')
 plt.legend()
 plt.show()
 
 plt.clf()
-plt.plot([a/b for a, b in zip(L1_lst, L2_lst)], label='L1/L2')
+plt.plot(steps, [a/b for a, b in zip(dL1_lst, dL_lst)], label='dL1/dL')
 plt.legend()
 plt.show()
