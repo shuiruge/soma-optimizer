@@ -120,12 +120,17 @@ for epoch in range(10000):
     print("Test set accuracy {}".format(test_acc))
 
 plt.clf()
-plt.plot(steps, dL1_lst, label='dL1')
-plt.plot(steps, dL_lst, label='dL')
+plt.plot(steps, dL1_lst, '.--', label='first-order')
+plt.plot(steps, dL_lst, '.--', label='total')
+plt.xlabel('iterate steps')
+plt.ylabel('loss differences')
 plt.legend()
 plt.show()
 
 plt.clf()
-plt.plot(steps, [a/b for a, b in zip(dL1_lst, dL_lst)], label='dL1/dL')
+plt.plot(steps, [a/b for a, b in zip(dL1_lst, dL_lst)], '.--',
+         label='first-order / total')
+plt.xlabel('iterate steps')
+plt.ylabel('loss differences')
 plt.legend()
 plt.show()
