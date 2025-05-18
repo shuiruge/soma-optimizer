@@ -62,8 +62,8 @@ def init_network_params(sizes, key):
     params += random_layer_params(m, n, k)
   return params
 
-layer_sizes = [28*28, 512, 10]
-num_epochs = 8
+layer_sizes = [28*28, 512, 512, 10]
+num_epochs = 5
 params = init_network_params(layer_sizes, random.key(0))
 
 from jax.scipy.special import logsumexp
@@ -115,9 +115,10 @@ import optax
 import matplotlib.pyplot as plt
 from soma_jax import soma
 
-# solver = optax.adam(learning_rate=1e-3)
+solver = optax.adam(learning_rate=1e-3)
 # solver = optax.sgd(learning_rate=1e-3)
-solver = soma(learning_rate=2e-4)  # test ours.
+# solver = optax.sgd(learning_rate=1e-3, momentum=0.95)
+# solver = soma(learning_rate=2e-4)  # test ours.
 
 @jit
 def update(params, x, y, opt_state):
@@ -126,17 +127,18 @@ def update(params, x, y, opt_state):
   return optax.apply_updates(params, updates), opt_state
 
 step = 0
-steps, dL1_lst, dL_lst = [], [], []
+steps, L_lst, dL1_lst, dL_lst = [], [], [], []
 opt_state = solver.init(params)
 for epoch in range(num_epochs):
   for x, y in training_generator:
-    params, opt_state = update(params, x, one_hot(y, n_targets), opt_state)
+    y = one_hot(y, n_targets)
+    params, opt_state = update(params, x, y, opt_state)
     step += 1
-    if step % 100 == 0:
-      eval_inputs = train_images[:5000, :]
-      eval_targets = one_hot(train_labels[:5000], n_targets)
-      dL1, dL = loss_diffs(params, eval_inputs, eval_targets, 1e-3)
+    if step % 50 == 0:
+      L = loss(params, x, y)
+      dL1, dL = loss_diffs(params, x, y, 1e-3)
       steps.append(step)
+      L_lst.append(L)
       dL1_lst.append(dL1)
       dL_lst.append(dL)
 
@@ -144,6 +146,13 @@ for epoch in range(num_epochs):
   test_acc = accuracy(params, test_images, test_labels)
   print("Training set accuracy {}".format(train_acc))
   print("Test set accuracy {}".format(test_acc))
+
+plt.clf()
+plt.plot(steps, L_lst, 'o--')
+plt.xlabel('iterate steps')
+plt.ylabel('loss')
+plt.legend()
+plt.show()
 
 plt.clf()
 plt.plot(steps, dL1_lst, 'o--', label='first-order')
@@ -154,24 +163,9 @@ plt.legend()
 plt.show()
 
 plt.clf()
-plt.plot(steps, [a/b for a, b in zip(dL1_lst, dL_lst)], 'o--',
-         label='first-order / total')
+plt.plot(steps, [a/b for a, b in zip(dL1_lst, dL_lst)],
+         'o--', label='first-order / total')
 plt.xlabel('iterate steps')
 plt.ylabel('loss differences')
 plt.legend()
 plt.show()
-
-
-# eps = 1e-12
-# H_inv = jnp.linalg.inv(H + eps * jnp.eye(H.shape[0]))
-# jnp.isnan(H_inv).sum()  # => 0, indicating that H_inv is well-defined.
-# g2 = jnp.dot(H_inv, g)
-# normalized_g2 = normalize(g2)
-# print(f'(H_inv @ g) @ g = {jnp.dot(normalized_g2, normalized_g)}')
-
-
-# jnp.linalg.eigvals(H)
-
-# jnp.linalg.det(H)
-# jnp.linalg.det(H + 1e-5 * jnp.eye(H.shape[0]))
-# jnp.linalg.det(1e-1 * jnp.eye(H.shape[0]))
