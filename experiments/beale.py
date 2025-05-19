@@ -6,16 +6,92 @@ import matplotlib.pyplot as plt
 from soma_jax import soma
 
 
-def beale(x):
+class Beale:
     """
-    The Beale function. The input `x` is 2-dimensional. The minimum value sits
-    in (3, 0.5).
+    The Beale function. The input `x` is 2-dimensional, in range [-4.5, 4.5]^2.
+    The minimum value sits in (3, 0.5).
 
     References
     ----------
     https://optimlib.readthedocs.io/en/latest/test_functions.html#beale-function
     """
-    return (1.5 - x[0] + x[0]*x[1])**2 + (2.25 - x[0] + x[0]*x[1]**2)**2 + (2.625 - x[0] + x[0]*x[1]**3)**2
+
+    def __call__(self, x):
+        return (1.5 - x[0] + x[0]*x[1])**2 + (2.25 - x[0] + x[0]*x[1]**2)**2 + (2.625 - x[0] + x[0]*x[1]**3)**2
+
+    def plot(self, trajectory):
+        x0 = jnp.linspace(-4.5, 4.5, 200)
+        x1 = jnp.linspace(-4.5, 4.5, 200)
+        y = self(jnp.stack(jnp.meshgrid(x0, x1), axis=0))
+
+        plt.clf()
+        plt.rcParams['figure.figsize'] = [6, 6]
+        plt.contour(x0, x1, y, levels=jnp.logspace(0, 6, 30), cmap=plt.cm.jet)
+        plt.axis('equal')
+        plt.plot(3, 0.5, 'k*', markersize=10)
+        plt.plot([x[0] for x in trajectory.x_history],
+                 [x[1] for x in trajectory.x_history],
+                '.--')
+        plt.show()
+
+
+class Booth:
+    """
+    The Booth function. The input `x` is 2-dimensional, in range [-10, 10]^2.
+    The minimum value sits in (1, 3).
+
+    References
+    ----------
+    https://optimlib.readthedocs.io/en/latest/test_functions.html#booth-function
+    """
+
+    def __call__(self, x):
+        return (x[0] + 2*x[1] - 7)**2 + (2*x[0] + x[1] - 5)**2
+
+    def plot(self, trajectory):
+        x0 = jnp.linspace(-10, 10, 200)
+        x1 = jnp.linspace(-10, 10, 200)
+        y = self(jnp.stack(jnp.meshgrid(x0, x1), axis=0))
+
+        plt.clf()
+        plt.rcParams['figure.figsize'] = [6, 6]
+        plt.contour(x0, x1, y, levels=jnp.logspace(0, 6, 30), cmap=plt.cm.jet)
+        plt.axis('equal')
+        plt.plot(1., 3., 'k*', markersize=10)
+        plt.plot([x[0] for x in trajectory.x_history],
+                 [x[1] for x in trajectory.x_history],
+                '.--')
+        plt.show()
+
+
+class Rosenbrock:
+    """
+    The Rosenbrock function. The input `x` is 2-dimensional. The minimum value
+    sits in (1, 1).
+
+    References
+    ----------
+    https://optimlib.readthedocs.io/en/latest/test_functions.html#rosenbrock-function
+    """
+
+    def __call__(self, x):
+        return 100 * (x[1] - x[0]**2)**2 + (1 - x[0])**2
+
+    def plot(self, trajectory):
+        x0 = jnp.linspace(-3, 3, 200)
+        x1 = jnp.linspace(-3, 3, 200)
+        y = self(jnp.stack(jnp.meshgrid(x0, x1), axis=0))
+
+        plt.clf()
+        plt.rcParams['figure.figsize'] = [6, 6]
+        plt.contour(x0, x1, y, levels=jnp.logspace(0, 6, 30), cmap=plt.cm.jet)
+        plt.axis('equal')
+        plt.plot(1., 1., 'k*', markersize=10)
+        plt.plot([x[0] for x in trajectory.x_history],
+                 [x[1] for x in trajectory.x_history],
+                '.--')
+        plt.show()
+
 
 def hessian(fn):
     return jax.jacrev(jax.grad(fn))
@@ -50,47 +126,36 @@ class Trajectory:
 
 class Optimizer:
 
-    def __init__(self, fn, solver):
-        self.fn = fn
+    def __init__(self, solver):
         self.solver = solver
-        self.opt_state = self.solver.init(x)
+        self.opt_state = None
 
-    @property
-    def optimize(self):
+    def optimize(self, fn):
         @jax.jit
         def update_fn(x):
-            g = jax.grad(self.fn)(x)
+            if self.opt_state is None:
+                self.opt_state = self.solver.init(x)
+            g = jax.grad(fn)(x)
             updates, self.opt_state = self.solver.update(g, self.opt_state, x)
             return optax.apply_updates(x, updates)
         return update_fn
 
+optimizer = Optimizer(optax.sgd(1e-3))
+#optimizer = Optimizer(optax.adam(1e-3))
+#optimizer = Optimizer(soma(1e-3))
 
-traj = Trajectory(beale)
-optimize = Optimizer(beale, optax.sgd(learning_rate=1e-3)).optimize
-#optimize = Optimizer(beale, optax.adagrad(learning_rate=1e-3)).optimize
-#optimize = Optimizer(beale, optax.rmsprop(learning_rate=1e-3)).optimize
-#optimize = Optimizer(beale, optax.adam(learning_rate=1e-3)).optimize
-#optimize = Optimizer(beale, soma(learning_rate=1e-3)).optimize
-x = jnp.array([1.5, 2])
-for step in range(2000):
-    if step % 200 == 0:
+#test_fn = Beale()
+#test_fn = Booth()
+test_fn = Rosenbrock()
+traj = Trajectory(test_fn)
+optimize = optimizer.optimize(test_fn)
+x = jnp.array([-2, -0.5])
+for step in range(10000):
+    if step % 100 == 0:
         traj.append(x)
     x = optimize(x)
-
-traj.x_history
 
 for g, n in zip(traj.grad_history, traj.newton_history):
     print(jnp.dot(normalize(g), normalize(n)))
 
-x0 = jnp.linspace(-4.5, 4.5, 200)
-x1 = jnp.linspace(-4.5, 4.5, 200)
-y = beale(jnp.stack(jnp.meshgrid(x0, x1), axis=0))
-
-plt.clf()
-plt.rcParams['figure.figsize'] = [6, 6]
-plt.contour(x0, x1, y, levels=jnp.logspace(0, 6, 30), cmap=plt.cm.jet)
-plt.axis('equal')
-plt.plot(3, 0.5, 'k*', markersize=10)
-plt.plot([x[0] for x in traj.x_history], [x[1] for x in traj.x_history],
-         '.--')
-plt.show()
+test_fn.plot(traj)
