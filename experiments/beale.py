@@ -140,22 +140,32 @@ class Optimizer:
             return optax.apply_updates(x, updates)
         return update_fn
 
-optimizer = Optimizer(optax.sgd(1e-3))
-#optimizer = Optimizer(optax.adam(1e-3))
+#optimizer = Optimizer(optax.sgd(1e-3))
+optimizer = Optimizer(optax.adam(1e-3))
 #optimizer = Optimizer(soma(1e-3))
 
-#test_fn = Beale()
+test_fn = Beale()
 #test_fn = Booth()
-test_fn = Rosenbrock()
+#test_fn = Rosenbrock()
 traj = Trajectory(test_fn)
 optimize = optimizer.optimize(test_fn)
 x = jnp.array([-2, -0.5])
-for step in range(10000):
-    if step % 100 == 0:
+for step in range(10):
+    if step % 1 == 0:
         traj.append(x)
     x = optimize(x)
 
 for g, n in zip(traj.grad_history, traj.newton_history):
-    print(jnp.dot(normalize(g), normalize(n)))
+    print()
 
 test_fn.plot(traj)
+
+# Examine the relation between linear approximation and the departure between
+# gradient and Newton's directions.
+for x, next_x in zip(traj.x_history[:-1], traj.x_history[1:]):
+    dx = next_x - x
+    df = test_fn(next_x) - test_fn(x)
+    linear_df = jnp.dot(jax.grad(test_fn)(x), dx)
+    print(f'df/linear_df = {df/linear_df:.3f}, '
+          f'theta(g, n) = {jnp.dot(normalize(g), normalize(n)):.3f}')
+# => Conclusion: no direct relationship.
